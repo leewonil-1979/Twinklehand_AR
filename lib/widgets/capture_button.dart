@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
 
 /// 중앙 촬영 버튼
-/// 카메라 스타일의 원형 버튼으로 모드에 따라 색상이 변경됨
+/// 카메라 화면의 원형 버튼으로 모드에 따라 색상이 변경됨
 class CaptureButton extends StatefulWidget {
   final VoidCallback onPressed;
   final bool isCleanMode;
@@ -83,12 +83,12 @@ class _CaptureButtonState extends State<CaptureButton>
                 gradient: RadialGradient(
                   colors: [
                     primaryColor,
-                    primaryColor.withOpacity(0.8),
+                    primaryColor.withValues(alpha: 0.8),
                   ],
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: primaryColor.withOpacity(0.4),
+                    color: primaryColor.withValues(alpha: 0.4),
                     blurRadius: 10.0,
                     spreadRadius: 2.0,
                   ),

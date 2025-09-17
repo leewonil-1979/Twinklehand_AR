@@ -21,7 +21,7 @@ class HandTrackingService {
     if (_isInitialized) return;
     
     try {
-      // 포즈 디텍터 초기화 (손목/손가락 감지)
+      // 포즈 디텍터 초기화(목/어깨 감지)
       _poseDetector = PoseDetector(
         options: PoseDetectorOptions(
           mode: PoseDetectionMode.stream,
@@ -29,7 +29,7 @@ class HandTrackingService {
         ),
       );
       
-      // 얼굴 디텍터 초기화
+      // ?�굴 ?�텍??초기??
       _faceDetector = FaceDetector(
         options: FaceDetectorOptions(
           enableClassification: false,
@@ -40,24 +40,24 @@ class HandTrackingService {
       );
       
       _isInitialized = true;
-      print('🤖 Google ML Kit 손 추적 서비스 초기화 완료');
+      debugPrint('?�� Google ML Kit ??추적 ?�비??초기???�료');
     } catch (e) {
-      print('❌ ML Kit 초기화 오류: $e');
+      debugPrint('??ML Kit 초기???�류: $e');
     }
   }
   
-  /// 카메라 이미지에서 실제 손과 얼굴 위치 감지
+  /// 카메???��?지?�서 ?�제 ?�과 ?�굴 ?�치 감�?
   Future<Map<String, List<Offset>>> detectHandsAndFaces(CameraImage image) async {
     if (!_isInitialized) {
       await initialize();
     }
     
     try {
-      // CameraImage를 InputImage로 변환
+      // CameraImage�?InputImage�?변??
       final inputImage = _cameraImageToInputImage(image);
       if (inputImage == null) return {'hands': [], 'faces': []};
       
-      // 손과 얼굴 동시 감지
+      // ?�과 ?�굴 ?�시 감�?
       final results = await Future.wait([
         _detectHandPoses(inputImage),
         _detectFaces(inputImage),
@@ -71,12 +71,12 @@ class HandTrackingService {
         'faces': _facePositions,
       };
     } catch (e) {
-      print('🔍 감지 오류: $e');
+      debugPrint('?�� 감�? ?�류: $e');
       return {'hands': [], 'faces': []};
     }
   }
   
-  /// 손 위치 감지 (손목, 검지, 엄지)
+  /// ???�치 감�? (?�목, 검지, ?��?)
   Future<List<Offset>> _detectHandPoses(InputImage inputImage) async {
     try {
       final poses = await _poseDetector.processImage(inputImage);
@@ -85,35 +85,35 @@ class HandTrackingService {
       for (final pose in poses) {
         final landmarks = pose.landmarks;
         
-        // 왼손 위치들
+        // ?�손 ?�치??
         _addHandLandmark(landmarks, PoseLandmarkType.leftWrist, handPositions);
         _addHandLandmark(landmarks, PoseLandmarkType.leftIndex, handPositions);
         _addHandLandmark(landmarks, PoseLandmarkType.leftThumb, handPositions);
         
-        // 오른손 위치들
+        // ?�른???�치??
         _addHandLandmark(landmarks, PoseLandmarkType.rightWrist, handPositions);
         _addHandLandmark(landmarks, PoseLandmarkType.rightIndex, handPositions);
         _addHandLandmark(landmarks, PoseLandmarkType.rightThumb, handPositions);
       }
       
-      print('✋ 감지된 손 위치: ${handPositions.length}개');
+      debugPrint('✋ 감지된 손 위치: ${handPositions.length}개');
       return handPositions;
     } catch (e) {
-      print('👋 손 감지 오류: $e');
+      debugPrint('👋 손 감지 오류: $e');
       return [];
     }
   }
   
-  /// 손 랜드마크 추가 헬퍼
+  /// ???�드마크 추�? ?�퍼
   void _addHandLandmark(Map<PoseLandmarkType, PoseLandmark> landmarks, 
                        PoseLandmarkType type, List<Offset> positions) {
     final landmark = landmarks[type];
-    if (landmark != null && landmark.likelihood > 0.5) { // 50% 이상 확신도
+    if (landmark != null && landmark.likelihood > 0.5) { // 50% ?�상 ?�신??
       positions.add(Offset(landmark.x, landmark.y));
     }
   }
   
-  /// 얼굴 위치 감지
+  /// ?�굴 ?�치 감�?
   Future<List<Offset>> _detectFaces(InputImage inputImage) async {
     try {
       final faces = await _faceDetector.processImage(inputImage);
@@ -126,18 +126,18 @@ class HandTrackingService {
         facePositions.add(Offset(centerX, centerY));
       }
       
-      print('😀 감지된 얼굴: ${facePositions.length}개');
+      debugPrint('😀 감지된 얼굴: ${facePositions.length}개');
       return facePositions;
     } catch (e) {
-      print('😵 얼굴 감지 오류: $e');
+      debugPrint('😵 얼굴 감지 오류: $e');
       return [];
     }
   }
   
-  /// CameraImage를 InputImage로 변환
+  /// CameraImage�?InputImage�?변??
   InputImage? _cameraImageToInputImage(CameraImage cameraImage) {
     try {
-      // 이미지 메타데이터 생성
+      // ?��?지 메�??�이???�성
       final metadata = InputImageMetadata(
         size: Size(cameraImage.width.toDouble(), cameraImage.height.toDouble()),
         rotation: InputImageRotation.rotation0deg,
@@ -145,30 +145,30 @@ class HandTrackingService {
         bytesPerRow: cameraImage.planes[0].bytesPerRow,
       );
       
-      // InputImage 생성
+      // InputImage ?�성
       return InputImage.fromBytes(
         bytes: cameraImage.planes[0].bytes,
         metadata: metadata,
       );
     } catch (e) {
-      print('🖼️ 이미지 변환 오류: $e');
+      debugPrint('?���??��?지 변???�류: $e');
       return null;
     }
   }
   
-  /// 현재 감지된 손 위치들 반환
+  /// ?�재 감�??????�치??반환
   List<Offset> get currentHandPositions => List.from(_handPositions);
   
-  /// 현재 감지된 얼굴 위치들 반환
+  /// ?�재 감�????�굴 ?�치??반환
   List<Offset> get currentFacePositions => List.from(_facePositions);
   
-  /// 서비스 종료
+  /// ?�비??종료
   Future<void> dispose() async {
     if (_isInitialized) {
       await _poseDetector.close();
       await _faceDetector.close();
       _isInitialized = false;
-      print('🛑 ML Kit 서비스 종료');
+      debugPrint('?�� ML Kit ?�비??종료');
     }
   }
 }

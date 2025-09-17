@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import '../models/app_icon.dart';
 import '../utils/app_colors.dart';
 
-/// AR 오버레이를 그리는 CustomPainter
-/// 선택된 아이콘을 화면 중앙에 표시하고 반짝임 효과 추가
+/// AR ?�버?�이�?그리??CustomPainter
+/// ?�택???�이콘을 ?�면 중앙???�시?�고 반짝???�과 추�?
 class AROverlayPainter extends CustomPainter {
   final AppIcon icon;
   final bool isCleanMode;
@@ -21,7 +21,7 @@ class AROverlayPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
 
-    // 배경 원 그리기 (반투명)
+    // 배경 ??그리�?(반투�?
     final backgroundPaint = Paint()
       ..color = (isCleanMode ? AppColors.cleanAccent : AppColors.dirtyAccent)
           .withOpacity(0.3 * animationValue)
@@ -29,25 +29,25 @@ class AROverlayPainter extends CustomPainter {
 
     canvas.drawCircle(center, radius, backgroundPaint);
 
-    // 테두리 원 그리기
+    // ?�두�???그리�?
     final borderPaint = Paint()
       ..color = (isCleanMode ? AppColors.cleanPrimary : AppColors.dirtyPrimary)
-          .withOpacity(0.8)
+          .withValues(alpha: 0.8)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0;
 
     canvas.drawCircle(center, radius - 1.5, borderPaint);
 
-    // 아이콘 모양 그리기 (임시로 기본 도형 사용)
+    // ?�이�?모양 그리�?(?�시�?기본 ?�형 ?�용)
     _drawIconShape(canvas, center, radius * 0.6);
 
-    // 반짝임 효과 (깨끗한 모드일 때만)
+    // 반짝???�과 (깨끗??모드???�만)
     if (isCleanMode && animationValue > 0.5) {
       _drawSparkleEffect(canvas, center, radius);
     }
   }
 
-  /// 아이콘 모양을 그리는 메서드
+  /// ?�이�?모양??그리??메서??
   void _drawIconShape(Canvas canvas, Offset center, double size) {
     final iconPaint = Paint()
       ..color = isCleanMode ? AppColors.cleanIconColor : AppColors.dirtyIconColor
@@ -82,13 +82,13 @@ class AROverlayPainter extends CustomPainter {
     }
   }
 
-  /// 세균 모양 그리기
+  /// ?�균 모양 그리�?
   void _drawBacteriaShape(Canvas canvas, Offset center, double size, Paint paint) {
     final path = Path();
     path.addOval(Rect.fromCenter(center: center, width: size, height: size * 0.7));
     canvas.drawPath(path, paint);
     
-    // 세균의 돌기들
+    // ?�균???�기??
     for (int i = 0; i < 8; i++) {
       final angle = (i * 45) * (3.14159 / 180);
       final x = center.dx + (size / 2 + 8) * cos(angle);
@@ -97,11 +97,11 @@ class AROverlayPainter extends CustomPainter {
     }
   }
 
-  /// 바이러스 모양 그리기
+  /// 바이?�스 모양 그리�?
   void _drawVirusShape(Canvas canvas, Offset center, double size, Paint paint) {
     canvas.drawCircle(center, size / 2, paint);
     
-    // 바이러스의 스파이크
+    // 바이?�스???�파?�크
     final spikePaint = Paint()
       ..color = paint.color
       ..style = PaintingStyle.stroke
@@ -118,7 +118,7 @@ class AROverlayPainter extends CustomPainter {
     }
   }
 
-  /// 균 모양 그리기
+  /// �?모양 그리�?
   void _drawGermsShape(Canvas canvas, Offset center, double size, Paint paint) {
     for (int i = 0; i < 5; i++) {
       final offset = Offset(
@@ -129,11 +129,11 @@ class AROverlayPainter extends CustomPainter {
     }
   }
 
-  /// 반짝임 모양 그리기
+  /// 반짝??모양 그리�?
   void _drawSparkleShape(Canvas canvas, Offset center, double size, Paint paint) {
     final path = Path();
     
-    // 4개의 뾰족한 끝이 있는 별 모양
+    // 4개의 뾰족???�이 ?�는 �?모양
     for (int i = 0; i < 4; i++) {
       final angle = (i * 90) * (3.14159 / 180);
       final x = center.dx + (size / 2) * cos(angle);
@@ -145,7 +145,7 @@ class AROverlayPainter extends CustomPainter {
         path.lineTo(x, y);
       }
       
-      // 중간점
+      // 중간??
       final midAngle = ((i * 90) + 45) * (3.14159 / 180);
       final midX = center.dx + (size / 4) * cos(midAngle);
       final midY = center.dy + (size / 4) * sin(midAngle);
@@ -156,7 +156,7 @@ class AROverlayPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-  /// 별 모양 그리기
+  /// �?모양 그리�?
   void _drawStarShape(Canvas canvas, Offset center, double size, Paint paint) {
     final path = Path();
     final outerRadius = size / 2;
@@ -179,12 +179,12 @@ class AROverlayPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-  /// 거품 모양 그리기
+  /// 거품 모양 그리�?
   void _drawBubbleShape(Canvas canvas, Offset center, double size, Paint paint) {
-    // 큰 거품
+    // ??거품
     canvas.drawCircle(center, size / 2, paint);
     
-    // 작은 거품들
+    // ?��? 거품??
     canvas.drawCircle(
       Offset(center.dx - size / 3, center.dy - size / 4), 
       size / 6, 
@@ -197,11 +197,11 @@ class AROverlayPainter extends CustomPainter {
     );
   }
 
-  /// 하트 모양 그리기
+  /// ?�트 모양 그리�?
   void _drawHeartShape(Canvas canvas, Offset center, double size, Paint paint) {
     final path = Path();
     
-    // 하트 모양 경로
+    // ?�트 모양 경로
     path.moveTo(center.dx, center.dy + size / 4);
     
     path.cubicTo(
@@ -219,13 +219,13 @@ class AROverlayPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-  /// 반짝임 효과 그리기
+  /// 반짝???�과 그리�?
   void _drawSparkleEffect(Canvas canvas, Offset center, double radius) {
     final sparklePaint = Paint()
       ..color = AppColors.cleanAccent.withOpacity(0.8 * animationValue)
       ..style = PaintingStyle.fill;
 
-    // 작은 반짝임들
+    // ?��? 반짝?�들
     for (int i = 0; i < 6; i++) {
       final angle = (i * 60 + animationValue * 360) * (3.14159 / 180);
       final distance = radius * 0.8;

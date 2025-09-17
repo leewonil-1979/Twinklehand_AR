@@ -11,7 +11,7 @@ import '../services/hand_tracking_service.dart';
 
 
 /// 메인 카메라 화면
-/// 전면 카메라를 사용하여 손씻기 AR 기능을 제공합니다.
+/// 전면 카메라를 사용하여 손씻기 AR 기능을 제공합니다
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
 
@@ -22,7 +22,7 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> 
     with WidgetsBindingObserver {
   
-  // 카메라 관련
+  // 카메??관??
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
   bool _isCameraInitialized = false;
@@ -84,7 +84,7 @@ class _CameraScreenState extends State<CameraScreen>
     }
   }
 
-  /// 카메라 초기화 (전면 카메라 우선)
+  /// 카메라 초기화(전면 카메라 우선)
   Future<void> _initializeCamera() async {
     try {
       // 기존 컨트롤러가 있으면 먼저 dispose
@@ -96,11 +96,11 @@ class _CameraScreenState extends State<CameraScreen>
       _cameras = await availableCameras();
       
       if (_cameras!.isEmpty) {
-        print('사용 가능한 카메라가 없습니다.');
+        debugPrint('사용 가능한 카메라가 없습니다.');
         return;
       }
       
-      // 전면 카메라 우선 선택 (손씻기 앱 특성)
+      // ?�면 카메???�선 ?�택 (?�씻�????�성)
       final frontCamera = _cameras!.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.front,
         orElse: () => _cameras!.first,
@@ -109,17 +109,17 @@ class _CameraScreenState extends State<CameraScreen>
       _cameraController = CameraController(
         frontCamera,
         ResolutionPreset.high,
-        enableAudio: false, // 손씻기 앱에서는 오디오 불필요
+        enableAudio: false, // ?�씻�??�에?�는 ?�디??불필??
       );
       
       await _cameraController!.initialize();
       
-      // mounted 체크 후 상태 업데이트
+      // mounted 체크 ???�태 ?�데?�트
       if (mounted && _cameraController != null && _cameraController!.value.isInitialized) {
-        // 손 추적 서비스 초기화
+        // ??추적 ?�비??초기??
         await _handTrackingService.initialize();
         
-        // 카메라 스트림 시작 (모바일에서만)
+        // 카메???�트�??�작 (모바?�에?�만)
         if (!kIsWeb) {
           _cameraController!.startImageStream(_processImage);
         }
@@ -129,7 +129,7 @@ class _CameraScreenState extends State<CameraScreen>
         });
       }
     } catch (e) {
-      print('카메라 초기화 오류: $e');
+              debugPrint('카메??초기???�류: $e');
       if (mounted) {
         setState(() {
           _isCameraInitialized = false;
@@ -138,16 +138,16 @@ class _CameraScreenState extends State<CameraScreen>
     }
   }
   
-  /// 카메라 이미지 스트림 처리 (손 추적)
+  /// 카메???��?지 ?�트�?처리 (??추적)
   bool _isProcessing = false;
   
   Future<void> _processImage(CameraImage image) async {
-    // 이미 처리 중이면 스킵
+    // ?��? 처리 중이�??�킵
     if (_isProcessing) return;
     _isProcessing = true;
     
     try {
-      // 손과 얼굴 위치 감지
+      // ?�과 ?�굴 ?�치 감�?
       final result = await _handTrackingService.detectHandsAndFaces(image);
       
       if (mounted) {
@@ -157,29 +157,29 @@ class _CameraScreenState extends State<CameraScreen>
         });
       }
     } catch (e) {
-      print('이미지 처리 오류: $e');
+              debugPrint('?��?지 처리 ?�류: $e');
     } finally {
       _isProcessing = false;
     }
   }
   
-  /// 모드 전환 (더러운 ↔ 깨끗한)
+  /// 모드 ?�환 (?�러????깨끗??
   void _toggleMode(bool isCleanMode) {
     setState(() {
       _isCleanMode = isCleanMode;
-      // 모드 변경시 첫 번째 아이콘으로 자동 선택
+      // 모드 변경시 �?번째 ?�이콘으�??�동 ?�택
       _selectedIcon = isCleanMode ? _cleanIcons.first : _dirtyIcons.first;
     });
   }
   
-  /// 아이콘 선택
+  /// ?�이�??�택
   void _selectIcon(AppIcon icon) {
     setState(() {
       _selectedIcon = icon;
     });
   }
   
-  /// 아이콘 이름에 따른 IconData 반환
+  /// ?�이�??�름???�른 IconData 반환
   IconData _getIconData(String iconName) {
     switch (iconName) {
       case 'Bacteria':
@@ -199,7 +199,7 @@ class _CameraScreenState extends State<CameraScreen>
     }
   }
   
-  /// 사진 촬영
+  /// ?�진 촬영
   Future<void> _takePicture() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
       return;
@@ -207,16 +207,16 @@ class _CameraScreenState extends State<CameraScreen>
     
     try {
       final XFile photo = await _cameraController!.takePicture();
-      print('사진 촬영 완료: ${photo.path}');
+      debugPrint('?�진 촬영 ?�료: ${photo.path}');
       
-      // TODO: 사진 저장 및 사용 횟수 추적 구현
+      // TODO: ?�진 ?�??�??�용 ?�수 추적 구현
       _showCaptureSuccess();
     } catch (e) {
-      print('사진 촬영 오류: $e');
+      debugPrint('?�진 촬영 ?�류: $e');
     }
   }
   
-  /// 촬영 성공 메시지 표시
+  /// 촬영 ?�공 메시지 ?�시
   void _showCaptureSuccess() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -231,9 +231,9 @@ class _CameraScreenState extends State<CameraScreen>
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenWidth < 600; // 모바일 기준
+    final isSmallScreen = screenWidth < 600; // 모바??기�?
     
-    // 반응형 크기 계산
+    // 반응???�기 계산
     final iconGridHeight = isSmallScreen ? screenHeight * 0.25 : 200.0;
     final arOverlaySize = isSmallScreen ? screenWidth * 0.3 : 120.0;
     final captureButtonSize = isSmallScreen ? 70.0 : 80.0;
@@ -243,7 +243,7 @@ class _CameraScreenState extends State<CameraScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // 1. 아이콘 선택 그리드 (상단)
+            // 1. ?�이�??�택 그리??(?�단)
             Container(
               height: iconGridHeight,
               padding: const EdgeInsets.all(16.0),
@@ -255,35 +255,35 @@ class _CameraScreenState extends State<CameraScreen>
               ),
             ),
             
-            // 2. 카메라 뷰 + AR 오버레이 (중앙)
+            // 2. 카메??�?+ AR ?�버?�이 (중앙)
             Expanded(
               child: Stack(
                 children: [
-                  // 카메라 뷰
+                  // 카메??�?
                   _buildCameraView(),
                   
-                  // 추적된 손 위치에 AR 오버레이 표시
+                  // 추적?????�치??AR ?�버?�이 ?�시
                   if (_selectedIcon != null) ..._buildHandOverlays(arOverlaySize),
                   
-                  // 추적된 얼굴 위치에 AR 오버레이 표시 (더러운 모드일 때만)
+                  // 추적???�굴 ?�치??AR ?�버?�이 ?�시 (?�러??모드???�만)
                   if (_selectedIcon != null && !_isCleanMode) ..._buildFaceOverlays(arOverlaySize),
                 ],
               ),
             ),
             
-            // 3. 하단 컨트롤 영역
+            // 3. ?�단 컨트�??�역
             Container(
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // 모드 전환 버튼
+                  // 모드 ?�환 버튼
                   ModeToggle(
                     isCleanMode: _isCleanMode,
                     onModeChanged: _toggleMode,
                   ),
                   
-                  // 촬영 버튼 (반응형 크기)
+                  // 촬영 버튼 (반응???�기)
                   SizedBox(
                     width: captureButtonSize,
                     height: captureButtonSize,
@@ -293,10 +293,10 @@ class _CameraScreenState extends State<CameraScreen>
                     ),
                   ),
                   
-                  // 설정 버튼 (나중에 구현)
+                  // ?�정 버튼 (?�중??구현)
                   IconButton(
                     onPressed: () {
-                      // TODO: 설정 화면으로 이동
+                      // TODO: ?�정 ?�면?�로 ?�동
                     },
                     icon: Icon(
                       Icons.settings,
@@ -313,7 +313,7 @@ class _CameraScreenState extends State<CameraScreen>
     );
   }
   
-  /// 카메라 뷰 빌드
+  /// 카메??�?빌드
   Widget _buildCameraView() {
     if (!_isCameraInitialized || 
         _cameraController == null || 
@@ -335,7 +335,7 @@ class _CameraScreenState extends State<CameraScreen>
     );
   }
   
-  /// 추적된 손 위치에 AR 오버레이 생성
+  /// 추적?????�치??AR ?�버?�이 ?�성
   List<Widget> _buildHandOverlays(double overlaySize) {
     return _trackedHandPositions.map((handPosition) {
       return Positioned(
@@ -347,7 +347,7 @@ class _CameraScreenState extends State<CameraScreen>
           height: overlaySize,
           decoration: BoxDecoration(
             color: (_isCleanMode ? AppColors.cleanAccent : AppColors.dirtyAccent)
-                .withOpacity(0.8),
+                .withValues(alpha: 0.8),
             shape: BoxShape.circle,
             border: Border.all(
               color: _isCleanMode ? AppColors.cleanPrimary : AppColors.dirtyPrimary,
@@ -356,7 +356,7 @@ class _CameraScreenState extends State<CameraScreen>
             boxShadow: [
               BoxShadow(
                 color: (_isCleanMode ? AppColors.cleanPrimary : AppColors.dirtyPrimary)
-                    .withOpacity(0.6),
+                    .withValues(alpha: 0.6),
                 blurRadius: 8,
                 spreadRadius: 2,
               ),
@@ -372,7 +372,7 @@ class _CameraScreenState extends State<CameraScreen>
     }).toList();
   }
   
-  /// 추적된 얼굴 위치에 AR 오버레이 생성 (더러운 모드용)
+  /// 추적???�굴 ?�치??AR ?�버?�이 ?�성 (?�러??모드??
   List<Widget> _buildFaceOverlays(double overlaySize) {
     return _trackedFacePositions.map((facePosition) {
       return Positioned(
@@ -380,10 +380,10 @@ class _CameraScreenState extends State<CameraScreen>
         top: facePosition.dy - (overlaySize / 2),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 100),
-          width: overlaySize * 0.8, // 얼굴용은 약간 작게
+          width: overlaySize * 0.8, // ?�굴?��? ?�간 ?�게
           height: overlaySize * 0.8,
           decoration: BoxDecoration(
-            color: AppColors.dirtyAccent.withOpacity(0.7),
+            color: AppColors.dirtyAccent.withValues(alpha: 0.7),
             shape: BoxShape.circle,
             border: Border.all(
               color: AppColors.dirtyPrimary,
@@ -391,14 +391,14 @@ class _CameraScreenState extends State<CameraScreen>
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.dirtyPrimary.withOpacity(0.5),
+                color: AppColors.dirtyPrimary.withValues(alpha: 0.5),
                 blurRadius: 6,
                 spreadRadius: 1,
               ),
             ],
           ),
           child: Icon(
-            Icons.coronavirus, // 얼굴에는 세균 아이콘
+            Icons.coronavirus, // ?�굴?�는 ?�균 ?�이�?
             size: overlaySize * 0.3,
             color: Colors.white,
           ),

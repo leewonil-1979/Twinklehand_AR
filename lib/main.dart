@@ -20,7 +20,7 @@ class SparkleHandApp extends StatelessWidget {
           brightness: Brightness.light,
         ),
         useMaterial3: true,
-        fontFamily: 'NotoSansKR', // 한글 폰트 지원
+        fontFamily: 'NotoSansKR', // 한글 폰트 지정
       ),
       home: const CameraScreen(),
     );

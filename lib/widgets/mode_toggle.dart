@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
 
 /// 더러운/깨끗한 모드 전환 토글 버튼
-/// 시각적으로 현재 모드를 표시하고 탭으로 전환 가능
+/// 시각적으로 현재 모드를 표시하고 터치로 전환 가능
 class ModeToggle extends StatelessWidget {
   final bool isCleanMode;
   final Function(bool) onModeChanged;
@@ -40,7 +40,7 @@ class ModeToggle extends StatelessWidget {
           const SizedBox(width: 4),
           // 깨끗한 모드 버튼
           _buildModeButton(
-            label: '깨끗함',
+            label: '깨끗한',
             icon: Icons.auto_awesome,
             isSelected: isCleanMode,
             color: AppColors.cleanPrimary,
@@ -70,7 +70,7 @@ class ModeToggle extends StatelessWidget {
           color: isSelected ? color : Colors.transparent,
           boxShadow: isSelected ? [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               blurRadius: 4.0,
               spreadRadius: 1.0,
             ),

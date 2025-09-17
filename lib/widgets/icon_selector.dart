@@ -52,11 +52,11 @@ class IconSelector extends StatelessWidget {
                   width: 3.0,
                 ),
                 color: isSelected
-                  ? (isCleanMode ? AppColors.cleanAccent : AppColors.dirtyAccent).withOpacity(0.3)
+                  ? (isCleanMode ? AppColors.cleanAccent : AppColors.dirtyAccent).withValues(alpha: 0.3)
                   : (isCleanMode ? AppColors.cleanBackground : AppColors.dirtyBackground),
                 boxShadow: isSelected ? [
                   BoxShadow(
-                    color: (isCleanMode ? AppColors.cleanPrimary : AppColors.dirtyPrimary).withOpacity(0.3),
+                    color: (isCleanMode ? AppColors.cleanPrimary : AppColors.dirtyPrimary).withValues(alpha: 0.3),
                     blurRadius: 6.0,
                     spreadRadius: 1.0,
                   ),
@@ -80,7 +80,7 @@ class IconSelector extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  // 아이콘 설명 텍스트 (반응형 폰트)
+                  // 아이콘 설명 텍스트 (반응형 텍스트)
                   Text(
                     icon.description,
                     style: TextStyle(

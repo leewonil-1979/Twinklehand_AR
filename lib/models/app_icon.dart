@@ -1,4 +1,4 @@
-/// AR에서 사용할 아이콘 데이터 모델
+/// AR에서 사용할 아이콘 아이템 모델
 class AppIcon {
   final String name;
   final String assetPath;

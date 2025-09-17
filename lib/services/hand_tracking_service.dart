@@ -29,7 +29,7 @@ class HandTrackingService {
         ),
       );
       
-      // ?�굴 ?�텍??초기??
+      // 얼굴 디텍터 초기화
       _faceDetector = FaceDetector(
         options: FaceDetectorOptions(
           enableClassification: false,
@@ -40,24 +40,24 @@ class HandTrackingService {
       );
       
       _isInitialized = true;
-      debugPrint('?�� Google ML Kit ??추적 ?�비??초기???�료');
+      debugPrint('✅ Google ML Kit 손 추적 서비스 초기화 완료');
     } catch (e) {
-      debugPrint('??ML Kit 초기???�류: $e');
+      debugPrint('❌ ML Kit 초기화 오류: $e');
     }
   }
   
-  /// 카메???��?지?�서 ?�제 ?�과 ?�굴 ?�치 감�?
+  /// 카메라 이미지에서 실제 손과 얼굴 위치 감지
   Future<Map<String, List<Offset>>> detectHandsAndFaces(CameraImage image) async {
     if (!_isInitialized) {
       await initialize();
     }
     
     try {
-      // CameraImage�?InputImage�?변??
+      // CameraImage를 InputImage로 변환
       final inputImage = _cameraImageToInputImage(image);
       if (inputImage == null) return {'hands': [], 'faces': []};
       
-      // ?�과 ?�굴 ?�시 감�?
+      // 손과 얼굴 동시 감지
       final results = await Future.wait([
         _detectHandPoses(inputImage),
         _detectFaces(inputImage),
@@ -71,12 +71,12 @@ class HandTrackingService {
         'faces': _facePositions,
       };
     } catch (e) {
-      debugPrint('?�� 감�? ?�류: $e');
+      debugPrint('🔍 감지 오류: $e');
       return {'hands': [], 'faces': []};
     }
   }
   
-  /// ???�치 감�? (?�목, 검지, ?��?)
+  /// 손 위치 감지 (손목, 검지, 엄지)
   Future<List<Offset>> _detectHandPoses(InputImage inputImage) async {
     try {
       final poses = await _poseDetector.processImage(inputImage);
@@ -85,12 +85,12 @@ class HandTrackingService {
       for (final pose in poses) {
         final landmarks = pose.landmarks;
         
-        // ?�손 ?�치??
+        // 왼손 위치들
         _addHandLandmark(landmarks, PoseLandmarkType.leftWrist, handPositions);
         _addHandLandmark(landmarks, PoseLandmarkType.leftIndex, handPositions);
         _addHandLandmark(landmarks, PoseLandmarkType.leftThumb, handPositions);
         
-        // ?�른???�치??
+        // 오른손 위치들
         _addHandLandmark(landmarks, PoseLandmarkType.rightWrist, handPositions);
         _addHandLandmark(landmarks, PoseLandmarkType.rightIndex, handPositions);
         _addHandLandmark(landmarks, PoseLandmarkType.rightThumb, handPositions);
@@ -104,16 +104,16 @@ class HandTrackingService {
     }
   }
   
-  /// ???�드마크 추�? ?�퍼
+  /// 손 랜드마크 추가 헬퍼
   void _addHandLandmark(Map<PoseLandmarkType, PoseLandmark> landmarks, 
                        PoseLandmarkType type, List<Offset> positions) {
     final landmark = landmarks[type];
-    if (landmark != null && landmark.likelihood > 0.5) { // 50% ?�상 ?�신??
+    if (landmark != null && landmark.likelihood > 0.5) { // 50% 이상 신뢰도
       positions.add(Offset(landmark.x, landmark.y));
     }
   }
   
-  /// ?�굴 ?�치 감�?
+  /// 얼굴 위치 감지
   Future<List<Offset>> _detectFaces(InputImage inputImage) async {
     try {
       final faces = await _faceDetector.processImage(inputImage);
@@ -134,10 +134,10 @@ class HandTrackingService {
     }
   }
   
-  /// CameraImage�?InputImage�?변??
+  /// CameraImage를 InputImage로 변환
   InputImage? _cameraImageToInputImage(CameraImage cameraImage) {
     try {
-      // ?��?지 메�??�이???�성
+      // 이미지 메타데이터 생성
       final metadata = InputImageMetadata(
         size: Size(cameraImage.width.toDouble(), cameraImage.height.toDouble()),
         rotation: InputImageRotation.rotation0deg,
@@ -145,30 +145,30 @@ class HandTrackingService {
         bytesPerRow: cameraImage.planes[0].bytesPerRow,
       );
       
-      // InputImage ?�성
+      // InputImage 생성
       return InputImage.fromBytes(
         bytes: cameraImage.planes[0].bytes,
         metadata: metadata,
       );
     } catch (e) {
-      debugPrint('?���??��?지 변???�류: $e');
+      debugPrint('📷 이미지 변환 오류: $e');
       return null;
     }
   }
   
-  /// ?�재 감�??????�치??반환
+  /// 현재 감지된 손 위치들 반환
   List<Offset> get currentHandPositions => List.from(_handPositions);
   
-  /// ?�재 감�????�굴 ?�치??반환
+  /// 현재 감지된 얼굴 위치들 반환
   List<Offset> get currentFacePositions => List.from(_facePositions);
   
-  /// ?�비??종료
+  /// 서비스 종료
   Future<void> dispose() async {
     if (_isInitialized) {
       await _poseDetector.close();
       await _faceDetector.close();
       _isInitialized = false;
-      debugPrint('?�� ML Kit ?�비??종료');
+      debugPrint('🛑 ML Kit 서비스 종료');
     }
   }
 }

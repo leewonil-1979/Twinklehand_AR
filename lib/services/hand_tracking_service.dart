@@ -49,13 +49,21 @@ class HandTrackingService {
   /// 카메라 이미지에서 실제 손과 얼굴 위치 감지
   Future<Map<String, List<Offset>>> detectHandsAndFaces(CameraImage image) async {
     if (!_isInitialized) {
+      debugPrint('🔄 ML Kit 초기화 중...');
       await initialize();
     }
     
     try {
+      debugPrint('📸 이미지 처리 시작 - 크기: ${image.width}x${image.height}');
+      
       // CameraImage를 InputImage로 변환
       final inputImage = _cameraImageToInputImage(image);
-      if (inputImage == null) return {'hands': [], 'faces': []};
+      if (inputImage == null) {
+        debugPrint('❌ InputImage 변환 실패');
+        return {'hands': [], 'faces': []};
+      }
+      
+      debugPrint('✅ InputImage 변환 성공');
       
       // 손과 얼굴 동시 감지
       final results = await Future.wait([
@@ -65,6 +73,8 @@ class HandTrackingService {
       
       _handPositions = results[0];
       _facePositions = results[1];
+      
+      debugPrint('🔍 감지 결과 - 손: ${_handPositions.length}개, 얼굴: ${_facePositions.length}개');
       
       return {
         'hands': _handPositions,

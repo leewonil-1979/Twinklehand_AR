@@ -42,10 +42,11 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> 
     with WidgetsBindingObserver {
   
-  // 카메??관??
+  // 카메라 관련
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
   bool _isCameraInitialized = false;
+  bool _isUsingFrontCamera = false; // 기본: 후면 카메라
   
   // 손 추적 서비스
   final HandTrackingService _handTrackingService = HandTrackingService();
@@ -123,16 +124,23 @@ class _CameraScreenState extends State<CameraScreen>
         return;
       }
       
-      // 전면 카메라 우선 선택 (손씻기 특성)
-      final frontCamera = _cameras!.firstWhere(
-        (camera) => camera.lensDirection == CameraLensDirection.front,
-        orElse: () => _cameras!.first,
-      );
+      // 후면 카메라 우선 선택 (기본값)
+      final selectedCamera = _isUsingFrontCamera
+          ? _cameras!.firstWhere(
+              (camera) => camera.lensDirection == CameraLensDirection.front,
+              orElse: () => _cameras!.first,
+            )
+          : _cameras!.firstWhere(
+              (camera) => camera.lensDirection == CameraLensDirection.back,
+              orElse: () => _cameras!.first,
+            );
+      
+      debugPrint('🎥 선택된 카메라: ${_isUsingFrontCamera ? "전면" : "후면"}');
       
       _cameraController = CameraController(
-        frontCamera,
+        selectedCamera,
         ResolutionPreset.high,
-        enableAudio: false, // 손씻기 앱에서는 오디오 불필요
+        enableAudio: false, // AR 앱에서는 오디오 불필요
       );
       
       await _cameraController!.initialize();
@@ -283,6 +291,23 @@ class _CameraScreenState extends State<CameraScreen>
     }
   }
   
+  /// 🔄 카메라 전환 (전면 ↔ 후면)
+  Future<void> _switchCamera() async {
+    if (_cameras == null || _cameras!.length < 2) {
+      debugPrint('⚠️ 카메라 전환 불가 - 카메라가 하나뿐입니다.');
+      return;
+    }
+    
+    setState(() {
+      _isUsingFrontCamera = !_isUsingFrontCamera;
+    });
+    
+    // 카메라 재초기화
+    await _initializeCamera();
+    
+    debugPrint('🔄 카메라 전환 완료: ${_isUsingFrontCamera ? "전면" : "후면"}');
+  }
+  
   /// 사진 촬영
   Future<void> _takePicture() async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
@@ -351,6 +376,22 @@ class _CameraScreenState extends State<CameraScreen>
                   
                   // 🎯 디버그: 감지된 위치 표시 (개발 중 확인용)
                   ..._buildDebugMarkers(),
+                  
+                  // 🔄 카메라 전환 버튼 (오른쪽 상단)
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: FloatingActionButton(
+                      mini: true,
+                      backgroundColor: Colors.black.withValues(alpha: 0.7),
+                      onPressed: _switchCamera,
+                      child: Icon(
+                        _isUsingFrontCamera ? Icons.camera_rear : Icons.camera_front,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

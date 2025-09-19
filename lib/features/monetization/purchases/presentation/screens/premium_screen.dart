@@ -513,8 +513,8 @@ class _PremiumScreenState extends State<PremiumScreen>
                   ],
                 ),
                 Row(
-                  baseline: TextBaseline.alphabetic,
                   crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
                       price,

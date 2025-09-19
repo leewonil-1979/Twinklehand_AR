@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
 import '../../../../providers/app_state_provider.dart';
 import '../../../../providers/ar_effects_provider.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -13,6 +14,8 @@ class IconSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AppStateProvider>(
       builder: (context, appState, child) {
+        final currentMode = appState.currentMode;
+
         return Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
@@ -25,12 +28,12 @@ class IconSelector extends StatelessWidget {
               _buildIconRow(
                 context: context,
                 icons: AppIcons.dirtyIcons.take(6).toList(),
-                selectedIcon: appState.selectedDirtyIcon,
+                selectedIcon: appState.selectedDirtyIcon, // String? 허용
                 isCleanMode: false,
-                currentMode: appState.currentMode,
+                currentMode: currentMode,
                 onIconSelected: (icon) {
                   appState.selectDirtyIcon(icon);
-                  if (appState.currentMode == AppMode.dirty) {
+                  if (currentMode == AppMode.dirty) {
                     _regenerateEffects(context, appState, icon);
                   }
                 },
@@ -40,12 +43,12 @@ class IconSelector extends StatelessWidget {
               _buildIconRow(
                 context: context,
                 icons: AppIcons.cleanIcons.take(6).toList(),
-                selectedIcon: appState.selectedCleanIcon,
+                selectedIcon: appState.selectedCleanIcon, // String? 허용
                 isCleanMode: true,
-                currentMode: appState.currentMode,
+                currentMode: currentMode,
                 onIconSelected: (icon) {
                   appState.selectCleanIcon(icon);
-                  if (appState.currentMode == AppMode.clean) {
+                  if (currentMode == AppMode.clean) {
                     _regenerateEffects(context, appState, icon);
                   }
                 },
@@ -56,25 +59,30 @@ class IconSelector extends StatelessWidget {
       },
     );
   }
-  
+
   Widget _buildIconRow({
     required BuildContext context,
     required List<String> icons,
-    required String selectedIcon,
+    required String? selectedIcon, // 널 허용
     required bool isCleanMode,
     required AppMode currentMode,
     required Function(String) onIconSelected,
   }) {
-    final isActiveRow = (isCleanMode && currentMode == AppMode.clean) ||
-                        (!isCleanMode && currentMode == AppMode.dirty);
-    
+    final bool isActiveRow =
+        (isCleanMode && currentMode == AppMode.clean) ||
+        (!isCleanMode && currentMode == AppMode.dirty);
+
+    final Color activeColor =
+        isCleanMode ? AppColors.cleanMode : AppColors.dirtyMode;
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: icons.map((icon) {
-          final isSelected = icon == selectedIcon && isActiveRow;
-          
+          final bool isSelected =
+              isActiveRow && selectedIcon != null && icon == selectedIcon;
+
           return GestureDetector(
             onTap: () {
               HapticFeedback.selectionClick();
@@ -85,18 +93,12 @@ class IconSelector extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 3),
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: isSelected
-                    ? (isCleanMode
-                        ? AppColors.cleanMode.withOpacity(0.3)
-                        : AppColors.dirtyMode.withOpacity(0.3))
-                    : Colors.transparent,
+                color: isSelected ? activeColor.withOpacity(0.3) : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: isSelected
-                      ? (isCleanMode ? AppColors.cleanMode : AppColors.dirtyMode)
-                      : isActiveRow
-                          ? Colors.white30
-                          : Colors.white10,
+                      ? activeColor
+                      : (isActiveRow ? Colors.white30 : Colors.white10),
                   width: isSelected ? 2 : 1,
                 ),
               ),
@@ -108,14 +110,7 @@ class IconSelector extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 22,
                     shadows: isSelected
-                        ? [
-                            Shadow(
-                              color: isCleanMode
-                                  ? AppColors.cleanMode
-                                  : AppColors.dirtyMode,
-                              blurRadius: 10,
-                            ),
-                          ]
+                        ? [Shadow(color: activeColor, blurRadius: 10)]
                         : null,
                   ),
                 ),
@@ -126,7 +121,7 @@ class IconSelector extends StatelessWidget {
       ),
     );
   }
-  
+
   void _regenerateEffects(
     BuildContext context,
     AppStateProvider appState,

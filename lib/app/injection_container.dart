@@ -5,7 +5,7 @@ import '../services/storage_service.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_service.dart';
 import '../features/camera/data/services/camera_service.dart';
-import '../features/mediapipe/data/services/mediapipe_service.dart';
+import '../services/mediapipe_service.dart';
 import '../features/ar_effects/data/services/effects_service.dart';
 import '../features/gallery/data/services/gallery_service.dart';
 import '../features/monetization/ads/data/services/admob_service.dart';

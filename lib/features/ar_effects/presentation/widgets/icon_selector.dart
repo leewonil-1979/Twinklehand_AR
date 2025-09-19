@@ -23,7 +23,7 @@ class IconSelector extends StatelessWidget {
             children: [
               // Dirty Icons Row
               _buildIconRow(
-                context,
+                context: context,
                 icons: AppIcons.dirtyIcons.take(6).toList(),
                 selectedIcon: appState.selectedDirtyIcon,
                 isCleanMode: false,
@@ -38,7 +38,7 @@ class IconSelector extends StatelessWidget {
               const SizedBox(height: 8),
               // Clean Icons Row
               _buildIconRow(
-                context,
+                context: context,
                 icons: AppIcons.cleanIcons.take(6).toList(),
                 selectedIcon: appState.selectedCleanIcon,
                 isCleanMode: true,

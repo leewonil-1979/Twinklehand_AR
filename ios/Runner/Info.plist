@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>TwinkleHands AR</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>twinkle_hands_ar</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	
+	<!-- 카메라 접근 권한 -->
+	<key>NSCameraUsageDescription</key>
+	<string>TwinkleHands AR needs camera access to detect hand gestures and provide AR effects while washing hands.</string>
+	
+	<!-- 사진 라이브러리 접근 권한 -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>TwinkleHands AR needs photo library access to save captured photos and videos of your hand washing sessions.</string>
+	
+	<!-- 사진 라이브러리 추가 권한 (iOS 11+) -->
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>TwinkleHands AR needs permission to save photos and videos to your photo library.</string>
+	
+	<!-- 마이크 권한 (비디오 녹화 시 필요할 수 있음) -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>TwinkleHands AR may need microphone access for video recording with sound.</string>
+	
+	<!-- 앱 추적 투명성 (iOS 14+, 광고용) -->
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This allows us to provide you with personalized ads and improve app experience.</string>
+</dict>
+</plist>

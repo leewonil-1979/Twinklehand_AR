@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -133,24 +134,26 @@ class _MainScreenState extends State<MainScreen>
             top: MediaQuery.of(context).padding.top + 10,
             left: 20,
             right: 20,
-            child: Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: AppColors.overlayDark.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(20),
-                backdropFilter: const ImageFilter.blur(
-                  sigmaX: 10,
-                  sigmaY: 10,
-                ),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: 10,
+                sigmaY: 10,
               ),
-              child: Column(
-                children: [
-                  // Status Message
-                  _buildStatusMessage(),
-                  const SizedBox(height: 15),
-                  // Icon Selector
-                  const IconSelector(),
-                ],
+              child: Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: AppColors.overlayDark.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  children: [
+                    // Status Message
+                    _buildStatusMessage(),
+                    const SizedBox(height: 15),
+                    // Icon Selector
+                    const IconSelector(),
+                  ],
+                ),
               ),
             ),
           ),

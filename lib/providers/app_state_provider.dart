@@ -42,6 +42,13 @@ class AppStateProvider extends ChangeNotifier {
     notifyListeners();
   }
   
+  void setMode(AppMode mode) {
+    if (_currentMode != mode) {
+      _currentMode = mode;
+      notifyListeners();
+    }
+  }
+  
   void selectDirtyIcon(String icon) {
     _selectedDirtyIcon = icon;
     notifyListeners();

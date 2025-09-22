@@ -36,14 +36,10 @@ dependencies:
   path_provider: ^2.1.1
   path: ^1.8.3
   
-  # MediaPipe / ML Kit (choose one)
-  # Option 1: Google ML Kit (Recommended)
+  # MediaPipe / ML Kit for Hand Tracking
   google_mlkit_pose_detection: ^0.14.0
   google_mlkit_face_detection: ^0.13.1
   google_mlkit_commons: ^0.11.0
-  
-  # Option 2: MediaPipe (if available)
-  # google_mediapipe: ^0.0.2
   
   # UI Enhancements
   flutter_animate: ^4.3.0

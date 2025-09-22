@@ -1,16 +1,18 @@
-buildscript {
-    ext {
-        buildToolsVersion = "33.0.0"
-        minSdkVersion = 24  // 👈 MediaPipe는 최소 24 필요
-        compileSdkVersion = 33
-        targetSdkVersion = 33
-        ndkVersion = "23.1.7779620"
-    }
+allprojects {
     repositories {
         google()
         mavenCentral()
     }
-    dependencies {
-        classpath("com.android.tools.build:gradle:7.3.1")
-    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
 }

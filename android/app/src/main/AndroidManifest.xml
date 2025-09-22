@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.twinkle_hands_ar">
+    package="com.twinklehands.ar">
 
     <!-- 인터넷 권한 -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -28,7 +28,7 @@
         android:exported="true">
         
         <activity
-            android:name=".MainActivity"
+            android:name="com.twinklehands.ar.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"

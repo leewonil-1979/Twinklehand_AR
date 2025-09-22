@@ -42,13 +42,17 @@ void main() async {
     cameras = [];
   }
   
+  // MediaPipe Provider 생성 및 초기화
+  final mediaPipeProvider = MediaPipeProvider();
+  await mediaPipeProvider.initialize();
+  
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
         ChangeNotifierProvider(create: (_) => CameraProvider()),
         ChangeNotifierProvider(create: (_) => AREffectsProvider()),
-        ChangeNotifierProvider(create: (_) => MediaPipeProvider()),
+        ChangeNotifierProvider.value(value: mediaPipeProvider),
       ],
       child: const TwinkleHandsApp(), // 앱 이름 변경
     ),

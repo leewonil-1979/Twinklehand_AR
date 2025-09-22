@@ -39,22 +39,41 @@ class CameraProvider extends ChangeNotifier {
       camera,
       ResolutionPreset.high,
       enableAudio: false,
+      imageFormatGroup: ImageFormatGroup.nv21, // ML Kit 호환성을 위한 형식
     );
     
     try {
       await _controller!.initialize();
+      
+      // 카메라 포커스 모드 설정 (오토포커스)
+      try {
+        await _controller!.setFocusMode(FocusMode.auto);
+        debugPrint('오토포커스 설정 완료');
+      } catch (e) {
+        debugPrint('오토포커스 설정 실패: $e');
+      }
+      
+      // 노출 모드 설정
+      try {
+        await _controller!.setExposureMode(ExposureMode.auto);
+        debugPrint('오토 노출 설정 완료');
+      } catch (e) {
+        debugPrint('오토 노출 설정 실패: $e');
+      }
       
       // Get zoom levels
       _minZoom = await _controller!.getMinZoomLevel();
       _maxZoom = await _controller!.getMaxZoomLevel();
       
       // Set custom zoom range: 0.5x to 2.0x
-      _minZoom = (_minZoom < 0.5) ? 0.5 : _minZoom;
-      _maxZoom = (_maxZoom > 2.0) ? 2.0 : _maxZoom;
+      _minZoom = 0.5; // 강제로 0.5부터 시작
+      _maxZoom = 2.0; // 강제로 2.0까지 제한
       
       // Set default zoom to 1.0x
-      _currentZoom = 1.0.clamp(_minZoom, _maxZoom);
+      _currentZoom = 1.0;
       await _controller!.setZoomLevel(_currentZoom);
+      
+      debugPrint('카메라 초기화 완료 - 줌 범위: ${_minZoom}x ~ ${_maxZoom}x, 현재: ${_currentZoom}x');
       
       _isInitialized = true;
       notifyListeners();
@@ -151,17 +170,23 @@ class CameraProvider extends ChangeNotifier {
         newCamera,
         ResolutionPreset.high,
         enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.nv21, // ML Kit 호환성
       );
       
       await _controller!.initialize();
       
-      // 줌 레벨 다시 설정
-      _minZoom = await _controller!.getMinZoomLevel();
-      _maxZoom = await _controller!.getMaxZoomLevel();
+      // 카메라 포커스 및 노출 모드 설정
+      try {
+        await _controller!.setFocusMode(FocusMode.auto);
+        await _controller!.setExposureMode(ExposureMode.auto);
+        debugPrint('카메라 전환 후 오토포커스/노출 설정 완료');
+      } catch (e) {
+        debugPrint('카메라 전환 후 포커스 설정 실패: $e');
+      }
       
-      // Set custom zoom range: 0.5x to 2.0x
-      _minZoom = (_minZoom < 0.5) ? 0.5 : _minZoom;
-      _maxZoom = (_maxZoom > 2.0) ? 2.0 : _maxZoom;
+      // 줌 레벨 다시 설정
+      _minZoom = 0.5; // 강제로 0.5부터 시작
+      _maxZoom = 2.0; // 강제로 2.0까지 제한
       
       // 현재 줌을 유지하되, 새 카메라의 범위 내로 조정
       _currentZoom = _currentZoom.clamp(_minZoom, _maxZoom);

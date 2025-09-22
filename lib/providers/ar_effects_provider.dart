@@ -67,48 +67,51 @@ class AREffectsProvider extends ChangeNotifier {
   
   void updateEffectPositions(List<Offset>? detectedPoints) {
     if (detectedPoints == null || detectedPoints.isEmpty) {
-      // 감지된 포인트가 없으면 자유롭게 떠다님
+      // 감지된 포인트가 없으면 화면 중앙으로 천천히 이동
+      final center = Offset(_screenSize.width / 2, _screenSize.height / 2);
       for (var effect in _effects) {
-        effect.position = Offset(
-          effect.position.dx + effect.velocity.dx,
-          effect.position.dy + effect.velocity.dy,
-        );
-        
-        // 화면 가장자리에서 반사
-        if (effect.position.dx < 0 || effect.position.dx > _screenSize.width) {
-          effect.velocity = Offset(-effect.velocity.dx, effect.velocity.dy);
-        }
-        if (effect.position.dy < 0 || effect.position.dy > _screenSize.height) {
-          effect.velocity = Offset(effect.velocity.dx, -effect.velocity.dy);
-        }
-      }
-    } else {
-      // 감지된 포인트 주변으로 모임
-      for (var effect in _effects) {
-        // 가장 가까운 감지 포인트 찾기
-        Offset nearestPoint = detectedPoints.first;
-        double minDistance = double.infinity;
-        
-        for (var point in detectedPoints) {
-          final distance = (effect.position - point).distance;
-          if (distance < minDistance) {
-            minDistance = distance;
-            nearestPoint = point;
-          }
-        }
-        
-        // 감지 포인트 주변으로 이동
-        effect.targetPosition = nearestPoint + Offset(
+        // 중앙으로 부드럽게 이동
+        effect.targetPosition = center + Offset(
           (_random.nextDouble() - 0.5) * 100,
           (_random.nextDouble() - 0.5) * 100,
         );
         
-        // 부드러운 이동
+        // 부드러운 이동 (더 빠른 반응)
         effect.position = Offset.lerp(
           effect.position,
           effect.targetPosition,
-          0.1,
+          0.15, // 더 빠른 추적을 위해 0.1에서 0.15로 증가
         )!;
+      }
+    } else {
+      // 감지된 포인트 주변으로 즉시 이동
+      for (int i = 0; i < _effects.length; i++) {
+        final effect = _effects[i];
+        
+        // 각 효과를 다른 감지 포인트에 할당
+        final targetPointIndex = i % detectedPoints.length;
+        final targetPoint = detectedPoints[targetPointIndex];
+        
+        // 타겟 포인트 주변에 약간의 랜덤 오프셋 추가 (손가락 주변에 분산)
+        final randomOffset = Offset(
+          (_random.nextDouble() - 0.5) * 80, // 80픽셀 반경 내에서 랜덤 배치
+          (_random.nextDouble() - 0.5) * 80,
+        );
+        
+        effect.targetPosition = targetPoint + randomOffset;
+        
+        // 매우 빠른 이동으로 실시간 추적 느낌
+        effect.position = Offset.lerp(
+          effect.position,
+          effect.targetPosition,
+          0.25, // 더 빠른 추적
+        )!;
+        
+        // 화면 경계 확인
+        effect.position = Offset(
+          effect.position.dx.clamp(0, _screenSize.width),
+          effect.position.dy.clamp(0, _screenSize.height),
+        );
       }
     }
     

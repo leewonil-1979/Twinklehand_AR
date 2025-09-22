@@ -207,11 +207,11 @@ class _MainScreenState extends State<MainScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Camera Switch Button
-                    const CameraSwitchButton(),
-                    const SizedBox(width: 20),
                     // Capture Button
                     const CaptureButton(),
+                    const SizedBox(width: 20),
+                    // Camera Switch Button (오른쪽에 배치)
+                    const CameraSwitchButton(),
                   ],
                 ),
                 const SizedBox(height: 20),

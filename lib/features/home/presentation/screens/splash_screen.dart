@@ -126,7 +126,7 @@ class _SplashScreenState extends State<SplashScreen>
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.yellow.withOpacity(_twinkleAnimation.value * 0.6),
+                                  color: Colors.yellow.withValues(alpha: _twinkleAnimation.value * 0.6),
                                   blurRadius: 40,
                                   spreadRadius: 20,
                                 ),
@@ -138,7 +138,7 @@ class _SplashScreenState extends State<SplashScreen>
                             width: 150,
                             height: 150,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
                             child: Center(
@@ -194,7 +194,7 @@ class _SplashScreenState extends State<SplashScreen>
                           letterSpacing: 2,
                           shadows: [
                             Shadow(
-                              color: Colors.black.withOpacity(0.3),
+                              color: Colors.black.withValues(alpha: 0.3),
                               offset: const Offset(2, 2),
                               blurRadius: 10,
                             ),
@@ -205,7 +205,7 @@ class _SplashScreenState extends State<SplashScreen>
                       Text(
                         AppStrings.appTagline,
                         style: TextStyles.bodyLarge.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 18,
                         ),
                       ),
@@ -223,7 +223,7 @@ class _SplashScreenState extends State<SplashScreen>
                         height: 40,
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white.withOpacity(0.8),
+                            Colors.white.withValues(alpha: 0.8),
                           ),
                           strokeWidth: 3,
                         ),
@@ -232,7 +232,7 @@ class _SplashScreenState extends State<SplashScreen>
                       Text(
                         AppStrings.splashLoading,
                         style: TextStyles.bodyMedium.copyWith(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                         ),
                       ),
                     ],

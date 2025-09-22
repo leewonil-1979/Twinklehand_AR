@@ -20,7 +20,7 @@ class _CaptureButtonState extends State<CaptureButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  bool _isPressed = false;
+  // Removed _isPressed as it was unused; animation controller handles visual feedback
   
   @override
   void initState() {
@@ -155,16 +155,13 @@ class _CaptureButtonState extends State<CaptureButton>
       builder: (context, appState, child) {
         return GestureDetector(
           onTapDown: (_) {
-            setState(() => _isPressed = true);
             _animationController.forward();
           },
           onTapUp: (_) {
-            setState(() => _isPressed = false);
             _animationController.reverse();
             _capturePhoto();
           },
           onTapCancel: () {
-            setState(() => _isPressed = false);
             _animationController.reverse();
           },
           child: AnimatedBuilder(
@@ -189,7 +186,7 @@ class _CaptureButtonState extends State<CaptureButton>
                         color: (appState.currentMode == AppMode.clean
                                 ? AppColors.cleanMode
                                 : AppColors.dirtyMode)
-                            .withOpacity(0.5),
+                            .withValues(alpha: 0.5),
                         blurRadius: 20,
                         spreadRadius: 2,
                       ),
@@ -216,7 +213,7 @@ class _CaptureButtonState extends State<CaptureButton>
                             size: 35,
                             shadows: [
                               Shadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 offset: const Offset(1, 1),
                                 blurRadius: 3,
                               ),

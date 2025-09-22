@@ -6,7 +6,6 @@ import '../../../../../providers/app_state_provider.dart';
 import '../../../../../services/storage_service.dart';
 import '../../../../../app/injection_container.dart';
 import '../../../../../core/constants/app_colors.dart';
-import '../../../../../core/constants/app_strings.dart';
 import '../../../../../core/themes/text_styles.dart';
 
 class PremiumScreen extends StatefulWidget {
@@ -227,7 +226,7 @@ class _PremiumScreenState extends State<PremiumScreen>
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.orange.withOpacity(0.5),
+                                    color: Colors.orange.withValues(alpha: 0.5),
                                     blurRadius: 30,
                                     spreadRadius: 10,
                                   ),
@@ -338,7 +337,7 @@ class _PremiumScreenState extends State<PremiumScreen>
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: AppColors.primary.withOpacity(0.3),
+          color: AppColors.primary.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -348,7 +347,7 @@ class _PremiumScreenState extends State<PremiumScreen>
             width: 50,
             height: 50,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.2),
+              color: AppColors.primary.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
@@ -437,15 +436,15 @@ class _PremiumScreenState extends State<PremiumScreen>
           color: isPopular ? null : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isPopular
-                ? Colors.transparent
-                : AppColors.primary.withOpacity(0.3),
+      color: isPopular
+        ? Colors.transparent
+        : AppColors.primary.withValues(alpha: 0.3),
             width: 2,
           ),
           boxShadow: isPopular
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.3),
+                    color: AppColors.primary.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -497,7 +496,7 @@ class _PremiumScreenState extends State<PremiumScreen>
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.success.withOpacity(0.2),
+                          color: AppColors.success.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(5),
                         ),
                         child: Text(

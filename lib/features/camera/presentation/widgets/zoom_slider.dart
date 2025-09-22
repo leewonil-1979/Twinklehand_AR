@@ -18,10 +18,10 @@ class ZoomSlider extends StatelessWidget {
           width: 50,
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(25),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
@@ -30,7 +30,7 @@ class ZoomSlider extends StatelessWidget {
               // Zoom In Icon
               Icon(
                 Icons.add,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 size: 20,
               ),
               // Slider
@@ -47,9 +47,9 @@ class ZoomSlider extends StatelessWidget {
                         overlayRadius: 16,
                       ),
                       activeTrackColor: AppColors.primary,
-                      inactiveTrackColor: Colors.white.withOpacity(0.3),
+                      inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
                       thumbColor: Colors.white,
-                      overlayColor: AppColors.primary.withOpacity(0.3),
+                      overlayColor: AppColors.primary.withValues(alpha: 0.3),
                     ),
                     child: Slider(
                       value: cameraProvider.currentZoom,
@@ -65,7 +65,7 @@ class ZoomSlider extends StatelessWidget {
               // Zoom Out Icon
               Icon(
                 Icons.remove,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 size: 20,
               ),
               const SizedBox(height: 10),
@@ -76,7 +76,7 @@ class ZoomSlider extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(

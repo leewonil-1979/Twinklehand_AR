@@ -146,14 +146,14 @@ class _ModeToggleButtonState extends State<ModeToggleButton>
                           color: (isCleanMode
                                   ? Colors.orange
                                   : Colors.green)
-                              .withOpacity(0.4),
+                              .withValues(alpha: 0.4),
                           blurRadius: 20,
                           offset: const Offset(0, 5),
                           spreadRadius: 2,
                         ),
                       ],
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                         width: 2,
                       ),
                     ),

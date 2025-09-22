@@ -54,11 +54,11 @@ class CameraPreviewWidget extends StatelessWidget {
                   colors: appState.currentMode == AppMode.clean
                       ? [
                           Colors.transparent,
-                          AppColors.cleanMode.withOpacity(0.1),
+                          AppColors.cleanMode.withValues(alpha: 0.1),
                         ]
                       : [
                           Colors.transparent,
-                          AppColors.dirtyMode.withOpacity(0.15),
+                          AppColors.dirtyMode.withValues(alpha: 0.15),
                         ],
                 ),
               ),
@@ -72,7 +72,7 @@ class CameraPreviewWidget extends StatelessWidget {
                   radius: 0.8,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.3),
+                    Colors.black.withValues(alpha: 0.3),
                   ],
                 ),
               ),
@@ -82,7 +82,7 @@ class CameraPreviewWidget extends StatelessWidget {
             if (appState.isCapturing)
               AnimatedContainer(
                 duration: const Duration(milliseconds: 100),
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
               ),
           ],
         );

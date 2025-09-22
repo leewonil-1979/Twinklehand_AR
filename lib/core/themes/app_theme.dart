@@ -14,7 +14,6 @@ class AppTheme {
       secondary: AppColors.accent,
       error: AppColors.error,
       surface: Colors.white,
-      background: Colors.white,
     ),
     
     appBarTheme: AppBarTheme(
@@ -57,7 +56,6 @@ class AppTheme {
       secondary: AppColors.accent,
       error: AppColors.error,
       surface: AppColors.surface,
-      background: AppColors.background,
     ),
     
     appBarTheme: AppBarTheme(

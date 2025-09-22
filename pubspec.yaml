@@ -26,7 +26,7 @@ dependencies:
   # Camera & Media
   camera: ^0.11.2
   image: ^4.1.3
-  gallery_saver: ^2.3.2
+  # gallery_saver는 최신 AGP와 namespace 이슈가 있어 제거합니다.
   
   # Permissions
   permission_handler: ^12.0.1
@@ -50,7 +50,9 @@ dependencies:
   collection: ^1.18.0
   
   # Ads (Phase 4)
-  google_mobile_ads: ^6.0.0
+  # google_mobile_ads 6.x는 Play Services Ads 24.x로 올라가 Kotlin 2.x를 요구합니다.
+  # Flutter 3.32 + AGP 8.7 조합에서 안전한 5.1.0으로 고정합니다.
+  google_mobile_ads: 5.1.0
   
   # In-App Purchase (Phase 5)
   in_app_purchase: ^3.1.11

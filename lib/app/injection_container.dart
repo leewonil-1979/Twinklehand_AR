@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/permission_service.dart';
 import '../services/storage_service.dart';
 import '../services/analytics_service.dart';
 import '../services/audio_service.dart';

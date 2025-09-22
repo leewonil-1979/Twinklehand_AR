@@ -19,7 +19,7 @@ class IconSelector extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(15),
           ),
           child: Column(
@@ -93,7 +93,7 @@ class IconSelector extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 3),
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: isSelected ? activeColor.withOpacity(0.3) : Colors.transparent,
+                color: isSelected ? activeColor.withValues(alpha: 0.3) : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: isSelected

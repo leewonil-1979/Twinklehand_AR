@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:camera/camera.dart';
 import 'package:go_router/go_router.dart';
@@ -142,7 +141,7 @@ class _MainScreenState extends State<MainScreen>
               child: Container(
                 padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                  color: AppColors.overlayDark.withOpacity(0.7),
+                  color: AppColors.overlayDark.withValues(alpha: 0.7),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Column(
@@ -202,8 +201,8 @@ class _MainScreenState extends State<MainScreen>
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
                     color: mediapipe.hasDetectedBody() 
-                      ? Colors.green.withOpacity(0.7)
-                      : Colors.orange.withOpacity(0.7),
+                      ? Colors.green.withValues(alpha: 0.7)
+                      : Colors.orange.withValues(alpha: 0.7),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -244,10 +243,10 @@ class _MainScreenState extends State<MainScreen>
         Color backgroundColor;
         
         if (appState.currentMode == AppMode.clean) {
-          backgroundColor = AppColors.cleanMode.withOpacity(0.3);
+          backgroundColor = AppColors.cleanMode.withValues(alpha: 0.3);
           message = AppStrings.cleanMessage;
         } else {
-          backgroundColor = AppColors.dirtyMode.withOpacity(0.3);
+          backgroundColor = AppColors.dirtyMode.withValues(alpha: 0.3);
           message = AppStrings.dirtyMessage;
         }
         

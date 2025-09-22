@@ -25,7 +25,8 @@ if (flutterVersionName == null) {
 android {
     namespace "com.twinklehands.ar"
     compileSdk flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    // Pin NDK to a stable version required by some native plugins
+    ndkVersion "27.0.12077973"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -61,8 +62,6 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    
     // Google ML Kit dependencies
     implementation 'com.google.mlkit:pose-detection:18.0.0-beta4'
     implementation 'com.google.mlkit:pose-detection-accurate:18.0.0-beta4'

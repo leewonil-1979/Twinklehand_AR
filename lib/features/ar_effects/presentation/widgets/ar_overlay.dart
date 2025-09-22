@@ -176,7 +176,7 @@ class _AREffectWidget extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.yellow.withOpacity(0.7 * cleanlinessScore),
+                            color: Colors.yellow.withValues(alpha: 0.7 * cleanlinessScore),
                             blurRadius: 25,
                             spreadRadius: 8,
                           ),
@@ -192,7 +192,7 @@ class _AREffectWidget extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.purple.withOpacity(0.6 * (1 - cleanlinessScore)),
+                            color: Colors.purple.withValues(alpha: 0.6 * (1 - cleanlinessScore)),
                             blurRadius: 15,
                             spreadRadius: 3,
                           ),
@@ -207,8 +207,8 @@ class _AREffectWidget extends StatelessWidget {
                       shadows: [
                         Shadow(
                           color: isCleanMode
-                              ? Colors.yellow.withOpacity(0.8 * cleanlinessScore)
-                              : Colors.black.withOpacity(0.5 * (1 - cleanlinessScore)),
+                              ? Colors.yellow.withValues(alpha: 0.8 * cleanlinessScore)
+                              : Colors.black.withValues(alpha: 0.5 * (1 - cleanlinessScore)),
                           blurRadius: isCleanMode ? 20 : 10,
                           offset: isCleanMode ? Offset.zero : const Offset(2, 2),
                         ),
@@ -244,8 +244,8 @@ class _HandLandmarkPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // 손 트레일 그리기
-    _drawHandTrail(canvas, leftHandTrail, Colors.blue.withOpacity(0.5));
-    _drawHandTrail(canvas, rightHandTrail, Colors.red.withOpacity(0.5));
+  _drawHandTrail(canvas, leftHandTrail, Colors.blue.withValues(alpha: 0.5));
+  _drawHandTrail(canvas, rightHandTrail, Colors.red.withValues(alpha: 0.5));
     
     // 손 랜드마크 점들 그리기
     final landmarkPaint = Paint()
@@ -254,9 +254,9 @@ class _HandLandmarkPainter extends CustomPainter {
     final connectionPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2
-      ..color = isCleanMode 
-          ? Colors.green.withOpacity(0.6)
-          : Colors.orange.withOpacity(0.6);
+    ..color = isCleanMode 
+      ? Colors.green.withValues(alpha: 0.6)
+      : Colors.orange.withValues(alpha: 0.6);
     
     // 랜드마크 간의 연결선 그리기 (손의 구조)
     _drawHandConnections(canvas, connectionPaint);
@@ -287,7 +287,7 @@ class _HandLandmarkPainter extends CustomPainter {
           break;
       }
       
-      landmarkPaint.color = pointColor.withOpacity(0.8);
+  landmarkPaint.color = pointColor.withValues(alpha: 0.8);
       canvas.drawCircle(screenPos, pointSize, landmarkPaint);
     }
   }
@@ -376,11 +376,11 @@ class _CleanlinessIndicator extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: (isCleanMode ? Colors.green : Colors.orange).withOpacity(0.8),
+  color: (isCleanMode ? Colors.green : Colors.orange).withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

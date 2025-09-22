@@ -9,9 +9,7 @@
     <uses-feature android:name="android.hardware.camera" android:required="true" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
     
-    <!-- 저장소 권한 -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- 저장소 권한: 앱 내부 저장소만 사용하므로 외부 저장소 권한은 필요 없음 (Android 10+ scoped storage) -->
     
     <!-- 네트워크 상태 확인 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -22,7 +20,7 @@
     <application
         android:label="TwinkleHands AR"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon"
+        android:icon="@android:drawable/sym_def_app_icon"
         android:allowBackup="false"
         android:theme="@style/LaunchTheme"
         android:exported="true">
@@ -74,3 +72,4 @@
             android:value="ca-app-pub-3940256099942544~3347511713"/>
     </application>
 </manifest>
+

@@ -11,6 +11,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../widgets/mode_toggle_button.dart';
 import '../widgets/capture_button.dart';
+import '../widgets/camera_switch_button.dart';
 import '../../../ar_effects/presentation/widgets/ar_overlay.dart';
 import '../../../ar_effects/presentation/widgets/icon_selector.dart';
 import '../../../camera/presentation/widgets/camera_preview_widget.dart';
@@ -28,6 +29,7 @@ class _MainScreenState extends State<MainScreen>
   late AnimationController _floatController;
   late AnimationController _pulseController;
   late AnimationController _sparkleController;
+  double _lastZoomLevel = 1.0; // 마지막 줌 레벨 추적
   
   @override
   void initState() {
@@ -35,6 +37,21 @@ class _MainScreenState extends State<MainScreen>
     _initializeAnimations();
     _initializeCamera();
     _generateInitialEffects();
+    
+    // 줌 변경 감지를 위한 리스너 추가
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cameraProvider = context.read<CameraProvider>();
+      cameraProvider.addListener(_onCameraChanged);
+    });
+  }
+  
+  void _onCameraChanged() {
+    final cameraProvider = context.read<CameraProvider>();
+    if (cameraProvider.currentZoom != _lastZoomLevel) {
+      _lastZoomLevel = cameraProvider.currentZoom;
+      // AR 효과 크기 업데이트
+      context.read<AREffectsProvider>().updateZoomLevel(_lastZoomLevel);
+    }
   }
   
   void _initializeAnimations() {
@@ -110,6 +127,10 @@ class _MainScreenState extends State<MainScreen>
   
   @override
   void dispose() {
+    // 카메라 리스너 제거
+    final cameraProvider = context.read<CameraProvider>();
+    cameraProvider.removeListener(_onCameraChanged);
+    
     _floatController.dispose();
     _pulseController.dispose();
     _sparkleController.dispose();
@@ -182,8 +203,17 @@ class _MainScreenState extends State<MainScreen>
             right: 0,
             child: Column(
               children: [
-                // Capture Button
-                const CaptureButton(),
+                // Camera Controls Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Camera Switch Button
+                    const CameraSwitchButton(),
+                    const SizedBox(width: 20),
+                    // Capture Button
+                    const CaptureButton(),
+                  ],
+                ),
                 const SizedBox(height: 20),
                 // Mode Toggle Button
                 const ModeToggleButton(),

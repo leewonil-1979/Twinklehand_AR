@@ -7,6 +7,7 @@ class AREffectsProvider extends ChangeNotifier {
   List<AREffect> _effects = [];
   final _random = math.Random();
   Size _screenSize = Size.zero;
+  double _zoomLevel = 1.0; // 현재 줌 레벨
   
   // Animation values
   double _floatValue = 0.0;
@@ -17,6 +18,7 @@ class AREffectsProvider extends ChangeNotifier {
   double get floatValue => _floatValue;
   double get pulseValue => _pulseValue;
   double get rotationValue => _rotationValue;
+  double get zoomLevel => _zoomLevel;
   
   void setScreenSize(Size size) {
     _screenSize = size;
@@ -30,13 +32,14 @@ class AREffectsProvider extends ChangeNotifier {
     _effects.clear();
     
     for (int i = 0; i < count; i++) {
+      final baseScale = 0.6 + _random.nextDouble() * 0.8;
       _effects.add(
         AREffect(
           id: 'effect_$i',
           icon: icon,
           position: _getRandomPosition(),
           targetPosition: _getRandomPosition(),
-          scale: 0.6 + _random.nextDouble() * 0.8,
+          scale: getZoomAdjustedScale(baseScale),
           rotation: _random.nextDouble() * 2 * math.pi,
           velocity: Offset(
             (_random.nextDouble() - 0.5) * 2,
@@ -143,5 +146,27 @@ class AREffectsProvider extends ChangeNotifier {
       effect.scale *= scale;
     }
     notifyListeners();
+  }
+  
+  /// 줌 레벨 업데이트 (AR 효과 크기도 자동 조정)
+  void updateZoomLevel(double zoomLevel) {
+    if (_zoomLevel == zoomLevel) return;
+    
+    final scaleRatio = zoomLevel / _zoomLevel;
+    _zoomLevel = zoomLevel;
+    
+    // AR 효과들의 크기를 줌에 비례해서 조정
+    for (var effect in _effects) {
+      effect.scale *= scaleRatio;
+      // 줌 레벨에 따른 최소/최대 크기 제한
+      effect.scale = effect.scale.clamp(0.3 * zoomLevel, 1.5 * zoomLevel);
+    }
+    
+    notifyListeners();
+  }
+  
+  /// 줌 기반 효과 크기 계산 (새로 생성되는 효과용)
+  double getZoomAdjustedScale(double baseScale) {
+    return baseScale * _zoomLevel;
   }
 }

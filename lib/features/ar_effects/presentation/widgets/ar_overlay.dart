@@ -45,12 +45,28 @@ class _AROverlayState extends State<AROverlay>
             .toList();
         
         final palmCenter = mediapipeProvider.getPalmCenter(screenSize);
+        final anchorPoints = <Offset>[];
+        if (palmCenter != null) {
+          anchorPoints.add(palmCenter);
+        }
+        anchorPoints.addAll(fingerTips);
+        if (anchorPoints.isEmpty && screenLandmarks.isNotEmpty) {
+          anchorPoints.add(screenLandmarks.first);
+        }
+        
+        // 최초 감지 시 효과 생성
+        if (arProvider.effects.isEmpty) {
+          arProvider.generateEffects(
+            icon: appState.currentIcon,
+            count: appState.currentMode == AppMode.clean ? 12 : 20,
+            mode: appState.currentMode,
+            anchors: anchorPoints,
+          );
+        }
         
         // AR 효과 위치 업데이트
-        if (palmCenter != null) {
-          arProvider.updateEffectPositions([palmCenter, ...fingerTips]);
-        } else {
-          arProvider.updateEffectPositions(screenLandmarks);
+        if (anchorPoints.isNotEmpty) {
+          arProvider.updateEffectPositions(anchorPoints);
         }
         
         // 청결도 모드에 따른 효과 생성
@@ -60,15 +76,13 @@ class _AROverlayState extends State<AROverlay>
           appState.setMode(isCleanMode ? AppMode.clean : AppMode.dirty);
           
           // 새로운 모드에 맞는 효과 생성
-          arProvider.generateEffects(
-            icon: appState.currentIcon,
-            count: isCleanMode ? 12 : 20,
-            mode: appState.currentMode,
-          );
+          arProvider.clearEffects();
         }
       } else {
-        // 손이 감지되지 않으면 기본 위치에 효과 생성
-        arProvider.updateEffectPositions(null);
+        // 손이 감지되지 않으면 효과 제거
+        if (arProvider.effects.isNotEmpty) {
+          arProvider.clearEffects();
+        }
       }
       
       // Continue loop
@@ -302,10 +316,18 @@ class _HandLandmarkPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     
     final path = Path();
-    path.moveTo(trail.first.dx, trail.first.dy);
+    final firstPoint = Offset(
+      trail.first.dx * screenSize.width,
+      trail.first.dy * screenSize.height,
+    );
+    path.moveTo(firstPoint.dx, firstPoint.dy);
     
     for (int i = 1; i < trail.length; i++) {
-      path.lineTo(trail[i].dx, trail[i].dy);
+      final point = Offset(
+        trail[i].dx * screenSize.width,
+        trail[i].dy * screenSize.height,
+      );
+      path.lineTo(point.dx, point.dy);
     }
     
     canvas.drawPath(path, paint);

@@ -30,13 +30,14 @@ class _MainScreenState extends State<MainScreen>
   late AnimationController _pulseController;
   late AnimationController _sparkleController;
   double _lastZoomLevel = 1.0; // 마지막 줌 레벨 추적
+  bool _isStreamStarted = false;
   
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _initializeCamera();
-    _generateInitialEffects();
+    _configureEffectsCanvas();
     
     // 줌 변경 감지를 위한 리스너 추가
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -96,32 +97,29 @@ class _MainScreenState extends State<MainScreen>
     });
   }
   
-  void _initializeCamera() {
+  Future<void> _initializeCamera() async {
     final cameraProvider = context.read<CameraProvider>();
     if (!cameraProvider.isInitialized) {
-      cameraProvider.initializeCamera();
+      await cameraProvider.initializeCamera();
+      if (!mounted) return;
     }
-    
-    // Start image stream for MediaPipe processing
-    if (cameraProvider.controller != null) {
-      cameraProvider.startImageStream((CameraImage image) {
-        context.read<MediaPipeProvider>().processImage(image);
+
+    if (!_isStreamStarted && cameraProvider.controller != null) {
+      await cameraProvider.startImageStream((CameraImage image, CameraDescription description) {
+        context.read<MediaPipeProvider>().processImage(
+              image,
+              description,
+            );
       });
+      if (!mounted) return;
+      _isStreamStarted = true;
     }
   }
   
-  void _generateInitialEffects() {
+  void _configureEffectsCanvas() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final size = MediaQuery.of(context).size;
-      final arProvider = context.read<AREffectsProvider>();
-      final appState = context.read<AppStateProvider>();
-      
-      arProvider.setScreenSize(size);
-      arProvider.generateEffects(
-        icon: appState.currentIcon,
-        count: appState.currentMode == AppMode.clean ? 12 : 20,
-        mode: appState.currentMode,
-      );
+      context.read<AREffectsProvider>().setScreenSize(size);
     });
   }
   

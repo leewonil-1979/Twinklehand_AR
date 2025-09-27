@@ -28,28 +28,31 @@ class AREffectsProvider extends ChangeNotifier {
     required String icon,
     required int count,
     required AppMode mode,
+    List<Offset>? anchors,
   }) {
     _effects.clear();
-    
+    final anchorList = anchors ?? const <Offset>[];
+    final hasAnchors = anchorList.isNotEmpty;
+
     for (int i = 0; i < count; i++) {
       final baseScale = 0.6 + _random.nextDouble() * 0.8;
+      final spawnPosition = hasAnchors
+          ? _jitteredAnchor(anchorList, i)
+          : _getRandomPosition();
       _effects.add(
         AREffect(
           id: 'effect_$i',
           icon: icon,
-          position: _getRandomPosition(),
-          targetPosition: _getRandomPosition(),
+          position: _clampToScreen(spawnPosition),
+          targetPosition: _clampToScreen(spawnPosition),
           scale: getZoomAdjustedScale(baseScale),
           rotation: _random.nextDouble() * 2 * math.pi,
-          velocity: Offset(
-            (_random.nextDouble() - 0.5) * 2,
-            (_random.nextDouble() - 0.5) * 2,
-          ),
+          velocity: Offset.zero,
           type: mode == AppMode.clean ? EffectType.clean : EffectType.germ,
         ),
       );
     }
-    
+
     notifyListeners();
   }
   
@@ -67,22 +70,10 @@ class AREffectsProvider extends ChangeNotifier {
   
   void updateEffectPositions(List<Offset>? detectedPoints) {
     if (detectedPoints == null || detectedPoints.isEmpty) {
-      // 감지된 포인트가 없으면 화면 중앙으로 천천히 이동
-      final center = Offset(_screenSize.width / 2, _screenSize.height / 2);
-      for (var effect in _effects) {
-        // 중앙으로 부드럽게 이동
-        effect.targetPosition = center + Offset(
-          (_random.nextDouble() - 0.5) * 100,
-          (_random.nextDouble() - 0.5) * 100,
-        );
-        
-        // 부드러운 이동 (더 빠른 반응)
-        effect.position = Offset.lerp(
-          effect.position,
-          effect.targetPosition,
-          0.15, // 더 빠른 추적을 위해 0.1에서 0.15로 증가
-        )!;
-      }
+      if (_effects.isEmpty) return;
+      _effects.clear();
+      notifyListeners();
+      return;
     } else {
       // 감지된 포인트 주변으로 즉시 이동
       for (int i = 0; i < _effects.length; i++) {
@@ -98,7 +89,7 @@ class AREffectsProvider extends ChangeNotifier {
           (_random.nextDouble() - 0.5) * 80,
         );
         
-        effect.targetPosition = targetPoint + randomOffset;
+        effect.targetPosition = _clampToScreen(targetPoint + randomOffset);
         
         // 매우 빠른 이동으로 실시간 추적 느낌
         effect.position = Offset.lerp(
@@ -108,10 +99,7 @@ class AREffectsProvider extends ChangeNotifier {
         )!;
         
         // 화면 경계 확인
-        effect.position = Offset(
-          effect.position.dx.clamp(0, _screenSize.width),
-          effect.position.dy.clamp(0, _screenSize.height),
-        );
+        effect.position = _clampToScreen(effect.position);
       }
     }
     
@@ -151,25 +139,38 @@ class AREffectsProvider extends ChangeNotifier {
     notifyListeners();
   }
   
-  /// 줌 레벨 업데이트 (AR 효과 크기도 자동 조정)
+  /// 줌 레벨 업데이트 (AR 효과 크기는 화면 기준으로 유지)
   void updateZoomLevel(double zoomLevel) {
-    if (_zoomLevel == zoomLevel) return;
-    
-    final scaleRatio = zoomLevel / _zoomLevel;
+    if ((_zoomLevel - zoomLevel).abs() < 0.0001) return;
+
     _zoomLevel = zoomLevel;
-    
-    // AR 효과들의 크기를 줌에 비례해서 조정
-    for (var effect in _effects) {
-      effect.scale *= scaleRatio;
-      // 줌 레벨에 따른 최소/최대 크기 제한
-      effect.scale = effect.scale.clamp(0.3 * zoomLevel, 1.5 * zoomLevel);
-    }
-    
     notifyListeners();
   }
   
   /// 줌 기반 효과 크기 계산 (새로 생성되는 효과용)
   double getZoomAdjustedScale(double baseScale) {
-    return baseScale * _zoomLevel;
+    return baseScale;
+  }
+
+  Offset _jitteredAnchor(List<Offset> anchors, int index) {
+    if (anchors.isEmpty) {
+      return _getRandomPosition();
+    }
+    final anchor = anchors[index % anchors.length];
+    final jitter = Offset(
+      (_random.nextDouble() - 0.5) * 60,
+      (_random.nextDouble() - 0.5) * 60,
+    );
+    return anchor + jitter;
+  }
+
+  Offset _clampToScreen(Offset position) {
+    if (_screenSize == Size.zero) {
+      return position;
+    }
+    return Offset(
+      position.dx.clamp(0, _screenSize.width),
+      position.dy.clamp(0, _screenSize.height),
+    );
   }
 }

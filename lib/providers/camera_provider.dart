@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+
 import '../main.dart';
 
 class CameraProvider extends ChangeNotifier {
@@ -10,8 +11,10 @@ class CameraProvider extends ChangeNotifier {
   double _maxZoom = 1.0;
   double _currentZoom = 1.0;
   CameraDescription? _currentCamera;
-  
-  // Getters
+  void Function(CameraImage, CameraDescription)? _imageStreamListener;
+
+  Offset? _lastFocusPointRaw;
+
   CameraController? get controller => _controller;
   bool get isInitialized => _isInitialized;
   bool get isProcessing => _isProcessing;
@@ -19,93 +22,87 @@ class CameraProvider extends ChangeNotifier {
   double get maxZoom => _maxZoom;
   double get currentZoom => _currentZoom;
   CameraDescription? get currentCamera => _currentCamera;
-  bool get isBackCamera => _currentCamera?.lensDirection == CameraLensDirection.back;
-  
+  bool get isBackCamera =>
+      _currentCamera?.lensDirection == CameraLensDirection.back;
+  Offset? get lastFocusPoint => _lastFocusPointRaw;
+
   Future<void> initializeCamera() async {
     if (cameras.isEmpty) {
       debugPrint('No cameras available');
       return;
     }
-    
-    // Use rear camera as default
+
     final camera = cameras.firstWhere(
       (camera) => camera.lensDirection == CameraLensDirection.back,
       orElse: () => cameras.first,
     );
-    
+
     _currentCamera = camera;
-    
+
     _controller = CameraController(
       camera,
       ResolutionPreset.high,
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.nv21, // ML Kit 호환성을 위한 형식
+      imageFormatGroup: ImageFormatGroup.nv21,
     );
-    
+
     try {
       await _controller!.initialize();
-      
-      // 카메라 포커스 모드 설정 (오토포커스)
-      try {
-        await _controller!.setFocusMode(FocusMode.auto);
-        debugPrint('오토포커스 설정 완료');
-      } catch (e) {
-        debugPrint('오토포커스 설정 실패: $e');
-      }
-      
-      // 노출 모드 설정
-      try {
-        await _controller!.setExposureMode(ExposureMode.auto);
-        debugPrint('오토 노출 설정 완료');
-      } catch (e) {
-        debugPrint('오토 노출 설정 실패: $e');
-      }
-      
-      // Get zoom levels
+
+      await _controller!.setFocusMode(FocusMode.auto);
+      debugPrint('오토포커스 설정 완료');
+
+      await _applyCenterFocus();
+
+      await _controller!.setExposureMode(ExposureMode.auto);
+      debugPrint('오토 노출 설정 완료');
+
       _minZoom = await _controller!.getMinZoomLevel();
       _maxZoom = await _controller!.getMaxZoomLevel();
-      
-      // Set custom zoom range: 0.5x to 2.0x
-      _minZoom = 0.5; // 강제로 0.5부터 시작
-      _maxZoom = 2.0; // 강제로 2.0까지 제한
-      
-      // Set default zoom to 1.0x
+
+      _minZoom = 0.5;
+      _maxZoom = 2.0;
+
       _currentZoom = 1.0;
       await _controller!.setZoomLevel(_currentZoom);
-      
-      debugPrint('카메라 초기화 완료 - 줌 범위: ${_minZoom}x ~ ${_maxZoom}x, 현재: ${_currentZoom}x');
-      
+
+      debugPrint(
+        '카메라 초기화 완료 - 줌 범위: ${_minZoom}x ~ ${_maxZoom}x, 현재: ${_currentZoom}x',
+      );
+
       _isInitialized = true;
       notifyListeners();
+
+      await _restartImageStreamIfNeeded();
     } catch (e) {
       debugPrint('Error initializing camera: $e');
       _isInitialized = false;
     }
   }
-  
+
   Future<void> setZoomLevel(double zoom) async {
     if (_controller == null || !_isInitialized) return;
-    
-    // Clamp zoom value
+
     zoom = zoom.clamp(_minZoom, _maxZoom);
-    
+
     try {
       await _controller!.setZoomLevel(zoom);
       _currentZoom = zoom;
+      await _reapplyFocusPoint();
       notifyListeners();
     } catch (e) {
       debugPrint('Error setting zoom: $e');
     }
   }
-  
+
   Future<XFile?> takePicture() async {
     if (_controller == null || !_isInitialized || _isProcessing) {
       return null;
     }
-    
+
     _isProcessing = true;
     notifyListeners();
-    
+
     try {
       final XFile photo = await _controller!.takePicture();
       _isProcessing = false;
@@ -118,94 +115,154 @@ class CameraProvider extends ChangeNotifier {
       return null;
     }
   }
-  
-  void startImageStream(void Function(CameraImage) onImage) {
-    if (_controller == null || !_isInitialized) return;
-    
+
+  Future<void> startImageStream(
+    void Function(CameraImage, CameraDescription) onImage,
+  ) async {
+    _imageStreamListener = onImage;
+    await _startImageStreamInternal();
+  }
+
+  Future<void> _startImageStreamInternal() async {
+    final controller = _controller;
+    if (controller == null || !_isInitialized) return;
+    if (controller.value.isStreamingImages) return;
+
     try {
-      _controller!.startImageStream(onImage);
+      await controller.startImageStream((CameraImage image) {
+        final listener = _imageStreamListener;
+        final description = _currentCamera ?? controller.description;
+        listener?.call(image, description);
+      });
+      debugPrint('카메라 이미지 스트림 시작');
+      await _reapplyFocusPoint();
     } catch (e) {
       debugPrint('Error starting image stream: $e');
     }
   }
-  
-  void stopImageStream() {
-    if (_controller == null || !_isInitialized) return;
-    
+
+  Future<void> stopImageStream() async {
+    final controller = _controller;
+    if (controller == null || !_isInitialized) return;
+
     try {
-      _controller!.stopImageStream();
+      if (controller.value.isStreamingImages) {
+        await controller.stopImageStream();
+        debugPrint('카메라 이미지 스트림 중지');
+      }
     } catch (e) {
       debugPrint('Error stopping image stream: $e');
     }
   }
-  
-  /// 카메라 전환 (전면 <-> 후면)
+
+  Future<void> _restartImageStreamIfNeeded() async {
+    if (_imageStreamListener == null) return;
+    await stopImageStream();
+    await _startImageStreamInternal();
+  }
+
   Future<void> switchCamera() async {
     if (cameras.length < 2) {
       debugPrint('카메라가 하나만 있어서 전환할 수 없습니다');
       return;
     }
-    
+
     try {
-      // 현재 이미지 스트림 중지
-      stopImageStream();
-      
-      // 현재 컨트롤러 해제
+      await stopImageStream();
       await _controller?.dispose();
-      
-      // 반대 카메라 찾기
-      final targetDirection = _currentCamera?.lensDirection == CameraLensDirection.back
-          ? CameraLensDirection.front
-          : CameraLensDirection.back;
-      
+
+      final targetDirection =
+          _currentCamera?.lensDirection == CameraLensDirection.back
+              ? CameraLensDirection.front
+              : CameraLensDirection.back;
+
       final newCamera = cameras.firstWhere(
         (camera) => camera.lensDirection == targetDirection,
         orElse: () => cameras.first,
       );
-      
+
       _currentCamera = newCamera;
-      
-      // 새 컨트롤러 생성 및 초기화
       _controller = CameraController(
         newCamera,
         ResolutionPreset.high,
         enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.nv21, // ML Kit 호환성
+        imageFormatGroup: ImageFormatGroup.nv21,
       );
-      
+
       await _controller!.initialize();
-      
-      // 카메라 포커스 및 노출 모드 설정
-      try {
-        await _controller!.setFocusMode(FocusMode.auto);
-        await _controller!.setExposureMode(ExposureMode.auto);
-        debugPrint('카메라 전환 후 오토포커스/노출 설정 완료');
-      } catch (e) {
-        debugPrint('카메라 전환 후 포커스 설정 실패: $e');
-      }
-      
-      // 줌 레벨 다시 설정
-      _minZoom = 0.5; // 강제로 0.5부터 시작
-      _maxZoom = 2.0; // 강제로 2.0까지 제한
-      
-      // 현재 줌을 유지하되, 새 카메라의 범위 내로 조정
+
+      await _controller!.setFocusMode(FocusMode.auto);
+      await _controller!.setExposureMode(ExposureMode.auto);
+      debugPrint('카메라 전환 후 오토포커스/노출 설정 완료');
+
+      _minZoom = 0.5;
+      _maxZoom = 2.0;
       _currentZoom = _currentZoom.clamp(_minZoom, _maxZoom);
       await _controller!.setZoomLevel(_currentZoom);
-      
+
+      await _reapplyFocusPoint();
+
       notifyListeners();
-      debugPrint('카메라 전환 완료: ${targetDirection == CameraLensDirection.back ? "후면" : "전면"}');
-      
+      debugPrint(
+        '카메라 전환 완료: ${
+          targetDirection == CameraLensDirection.back ? "후면" : "전면"
+        }',
+      );
+
+      await _restartImageStreamIfNeeded();
     } catch (e) {
       debugPrint('카메라 전환 오류: $e');
-      // 오류 발생 시 다시 초기화 시도
       _isInitialized = false;
       await initializeCamera();
     }
   }
-  
+
   @override
   void dispose() {
+    _imageStreamListener = null;
+    if (_controller?.value.isStreamingImages ?? false) {
+      _controller!.stopImageStream();
+    }
     _controller?.dispose();
     super.dispose();
+  }
+
+  Future<void> setFocusPoint(Offset normalizedPoint) async {
+    final controller = _controller;
+    if (controller == null || !_isInitialized) return;
+
+    final clamped = Offset(
+      normalizedPoint.dx.clamp(0.0, 1.0),
+      normalizedPoint.dy.clamp(0.0, 1.0),
+    );
+
+    final adjusted = isBackCamera
+        ? clamped
+        : Offset(1.0 - clamped.dx, clamped.dy);
+
+    try {
+      await controller.setFocusMode(FocusMode.auto);
+      await controller.setFocusPoint(adjusted);
+      await controller.setExposureMode(ExposureMode.auto);
+      await controller.setExposurePoint(adjusted);
+      _lastFocusPointRaw = clamped;
+      debugPrint('포커스/노출 포인트 설정: $adjusted');
+    } catch (e) {
+      debugPrint('포커스 포인트 설정 실패: $e');
+    }
+  }
+
+  Future<void> _applyCenterFocus() async {
+    try {
+      await setFocusPoint(const Offset(0.5, 0.5));
+    } catch (_) {}
+  }
+
+  Future<void> _reapplyFocusPoint() async {
+    if (_lastFocusPointRaw != null) {
+      await setFocusPoint(_lastFocusPointRaw!);
+    } else {
+      await _applyCenterFocus();
+    }
   }
 }

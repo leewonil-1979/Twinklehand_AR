@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../providers/app_state_provider.dart';
 import '../../../../providers/ar_effects_provider.dart';
+import '../../../../providers/mediapipe_provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_icons.dart';
 
@@ -128,10 +129,29 @@ class IconSelector extends StatelessWidget {
     String icon,
   ) {
     final arProvider = context.read<AREffectsProvider>();
+    final mediapipe = context.read<MediaPipeProvider>();
+    final screenSize = MediaQuery.of(context).size;
+    
+    final anchors = <Offset>[];
+    final palm = mediapipe.getPalmCenter(screenSize);
+    if (palm != null) {
+      anchors.add(palm);
+    }
+    anchors.addAll(
+      mediapipe.getFingerTips().map((tip) => tip.toScreenOffset(screenSize)),
+    );
+
+    if (anchors.isEmpty) {
+      // 감지 대상이 없으면 효과를 제거하고 감지 루프에서 다시 생성되도록 함
+      arProvider.clearEffects();
+      return;
+    }
+
     arProvider.generateEffects(
       icon: icon,
       count: appState.currentMode == AppMode.clean ? 12 : 20,
       mode: appState.currentMode,
+      anchors: anchors,
     );
   }
 }

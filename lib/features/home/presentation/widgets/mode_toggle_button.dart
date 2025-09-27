@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../../providers/app_state_provider.dart';
 import '../../../../providers/ar_effects_provider.dart';
+import '../../../../providers/mediapipe_provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 
@@ -65,11 +66,27 @@ class _ModeToggleButtonState extends State<ModeToggleButton>
     
     // Regenerate AR effects with new mode
     final arProvider = context.read<AREffectsProvider>();
-    arProvider.generateEffects(
-      icon: appState.currentIcon,
-      count: appState.currentMode == AppMode.clean ? 12 : 20,
-      mode: appState.currentMode,
+    final mediapipe = context.read<MediaPipeProvider>();
+    final screenSize = MediaQuery.of(context).size;
+    final anchors = <Offset>[];
+    final palm = mediapipe.getPalmCenter(screenSize);
+    if (palm != null) {
+      anchors.add(palm);
+    }
+    anchors.addAll(
+      mediapipe.getFingerTips().map((tip) => tip.toScreenOffset(screenSize)),
     );
+    
+    if (anchors.isEmpty) {
+      arProvider.clearEffects();
+    } else {
+      arProvider.generateEffects(
+        icon: appState.currentIcon,
+        count: appState.currentMode == AppMode.clean ? 12 : 20,
+        mode: appState.currentMode,
+        anchors: anchors,
+      );
+    }
     
     // Show mode change message
     _showModeChangeMessage(appState.currentMode);
@@ -136,9 +153,9 @@ class _ModeToggleButtonState extends State<ModeToggleButton>
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: isCleanMode
-                            ? [Colors.orange.shade600, Colors.deepOrange]
-                            : [Colors.green.shade500, Colors.lightGreen],
+            colors: isCleanMode
+              ? [Colors.orange.shade600, Colors.deepOrange]
+              : [Colors.green.shade500, Colors.lightGreen],
                       ),
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [

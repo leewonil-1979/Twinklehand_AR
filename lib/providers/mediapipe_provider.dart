@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import '../features/mediapipe/data/services/mediapipe_service.dart';
 
 class MediaPipeProvider extends ChangeNotifier {
@@ -43,14 +44,27 @@ class MediaPipeProvider extends ChangeNotifier {
   }
   
   /// 카메라 이미지 처리
-  Future<void> processImage(CameraImage image) async {
+  Future<void> processImage(
+    CameraImage image,
+    CameraDescription description,
+  ) async {
     if (_isProcessing || !_isInitialized) return;
     
     _isProcessing = true;
     notifyListeners();
     
     try {
-      await _mediaPipeService.processImage(image);
+      final rotation = InputImageRotationValue.fromRawValue(
+            description.sensorOrientation,
+          ) ??
+          InputImageRotation.rotation0deg;
+      final isFrontCamera =
+          description.lensDirection == CameraLensDirection.front;
+      await _mediaPipeService.processImage(
+        image,
+        rotation,
+        isFrontCamera,
+      );
       
       // MediaPipe 서비스에서 데이터 가져오기
       _handLandmarks = _mediaPipeService.handLandmarks;
